@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
-import { AIToolsPage } from '@/components/dashboard/ai-tools-page'
+import { AIToolsPage as AIToolsPageComponent } from '@/components/dashboard/ai-tools-page'
 
 export default function AIToolsPage() {
   const { user, loading } = useAuth()
@@ -30,7 +30,7 @@ export default function AIToolsPage() {
 
   return (
     <DashboardLayout>
-      <AIToolsPage />
+      <AIToolsPageComponent />
     </DashboardLayout>
   )
 }
