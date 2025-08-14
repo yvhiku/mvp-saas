@@ -111,14 +111,14 @@ export function ProjectCard({ project, onView, onEdit, onDelete }: ProjectCardPr
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {project.main_features.slice(0, 3).map((feature, index) => (
+            {(project.main_features ?? []).slice(0, 3).map((feature, index) => (
               <Badge key={index} variant="secondary" className="text-xs">
                 {feature}
               </Badge>
             ))}
-            {project.main_features.length > 3 && (
+            {(project.main_features ?? []).length > 3 && (
               <Badge variant="secondary" className="text-xs">
-                +{project.main_features.length - 3} more
+                +{(project.main_features ?? []).length - 3} more
               </Badge>
             )}
           </div>
