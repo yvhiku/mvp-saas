@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { 
   Brain, 
   FileText, 
-  Image, 
+  Image,
   CheckSquare, 
   Lightbulb, 
   Target, 
