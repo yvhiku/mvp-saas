@@ -1,0 +1,118 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from './use-auth'
+
+export interface Project {
+  id: string
+  user_id: string
+  name: string
+  description: string
+  target_market: string
+  main_features: string[]
+  blueprint: any | null
+  wireframe_url: string | null
+  pitch_deck: any | null
+  checklist: any | null
+  status: string
+  created_at: string
+  updated_at: string
+}
+
+export function useProjects() {
+  const { user } = useAuth()
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (user) {
+      fetchProjects()
+    } else {
+      setProjects([])
+      setLoading(false)
+    }
+  }, [user])
+
+  const fetchProjects = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setProjects(data || [])
+    } catch (error) {
+      console.error('Error fetching projects:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const createProject = async (projectData: {
+    name: string
+    description: string
+    target_market: string
+    main_features: string[]
+  }) => {
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .insert({
+          ...projectData,
+          user_id: user?.id,
+          status: 'draft',
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+      await fetchProjects()
+      return data
+    } catch (error) {
+      console.error('Error creating project:', error)
+      throw error
+    }
+  }
+
+  const updateProject = async (projectId: string, updates: Partial<Project>) => {
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', projectId)
+
+      if (error) throw error
+      await fetchProjects()
+    } catch (error) {
+      console.error('Error updating project:', error)
+      throw error
+    }
+  }
+
+  const deleteProject = async (projectId: string) => {
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', projectId)
+
+      if (error) throw error
+      await fetchProjects()
+    } catch (error) {
+      console.error('Error deleting project:', error)
+      throw error
+    }
+  }
+
+  return {
+    projects,
+    loading,
+    createProject,
+    updateProject,
+    deleteProject,
+    refetch: fetchProjects,
+  }
+}
