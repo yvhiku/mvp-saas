@@ -18,6 +18,7 @@ import {
   CreditCard,
   LogOut,
   Brain,
+  Hammer,
 } from 'lucide-react'
 
 interface DashboardLayoutProps {
@@ -37,6 +38,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     { name: 'Dashboard', href: '/dashboard', icon: Home },
     { name: 'New Project', href: '/dashboard/new', icon: FolderPlus },
     { name: 'AI Tools', href: '/dashboard/ai-tools', icon: Brain },
+    { name: 'MVP Builder', href: '/dashboard/mvp-builder', icon: Hammer },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
     { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
   ]

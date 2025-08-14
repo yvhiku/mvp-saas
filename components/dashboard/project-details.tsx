@@ -17,6 +17,7 @@ import {
   Download,
   Loader2,
   ArrowLeft,
+  Hammer,
 } from 'lucide-react'
 import type { Project } from '@/hooks/use-projects'
 import { generateBlueprint, generatePitchDeck, generateLaunchChecklist, type BlueprintData, type PitchDeckSlide } from '@/lib/openai'
@@ -238,6 +239,7 @@ export function ProjectDetails({ project, onUpdate }: ProjectDetailsProps) {
           <TabsTrigger value="wireframe">Wireframe</TabsTrigger>
           <TabsTrigger value="pitch-deck">Pitch Deck</TabsTrigger>
           <TabsTrigger value="checklist">Launch Checklist</TabsTrigger>
+         <TabsTrigger value="mvp-builder">MVP Builder</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -304,6 +306,15 @@ export function ProjectDetails({ project, onUpdate }: ProjectDetailsProps) {
                     </span>
                     <Badge variant={project.checklist ? "default" : "secondary"}>
                       {project.checklist ? "Complete" : "Pending"}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Hammer className="h-4 w-4" />
+                      MVP Builder
+                    </span>
+                    <Badge variant="secondary">
+                      Available
                     </Badge>
                   </div>
                 </div>
@@ -625,6 +636,33 @@ export function ProjectDetails({ project, onUpdate }: ProjectDetailsProps) {
                   })}
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="mvp-builder">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Hammer className="h-5 w-5" />
+                MVP Builder
+              </CardTitle>
+              <CardDescription>
+                Build your actual MVP with guided development tools
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <Hammer className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">Ready to Build Your MVP?</h3>
+                <p className="text-gray-600 mb-6">
+                  Use our comprehensive MVP Builder to generate code, set up your database, and deploy your application.
+                </p>
+                <Button onClick={() => router.push('/dashboard/mvp-builder')}>
+                  <Hammer className="mr-2 h-4 w-4" />
+                  Open MVP Builder
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
