@@ -1,8 +1,13 @@
 import OpenAI from 'openai'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+// Initialize OpenAI client only if API key is available
+const getOpenAIClient = () => {
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey || apiKey === 'your-openai-api-key-here') {
+    throw new Error('OpenAI API key not configured. Please add your OpenAI API key to the environment variables.')
+  }
+  return new OpenAI({ apiKey })
+}
 
 export interface BlueprintData {
   concept: string
@@ -36,6 +41,8 @@ export async function generateBlueprint(
   features: string[]
 ): Promise<BlueprintData> {
   try {
+    const openai = getOpenAIClient()
+    
     const prompt = `
     Create a comprehensive startup blueprint for "${projectName}".
     
@@ -66,6 +73,7 @@ export async function generateBlueprint(
       model: 'gpt-4',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.7,
+      max_tokens: 2000,
     })
 
     const content = response.choices[0]?.message?.content
@@ -80,6 +88,8 @@ export async function generateBlueprint(
 
 export async function generatePitchDeck(blueprint: BlueprintData, projectName: string): Promise<PitchDeckSlide[]> {
   try {
+    const openai = getOpenAIClient()
+    
     const prompt = `
     Create a 10-slide pitch deck for "${projectName}" based on this blueprint:
     ${JSON.stringify(blueprint, null, 2)}
@@ -104,6 +114,7 @@ export async function generatePitchDeck(blueprint: BlueprintData, projectName: s
       model: 'gpt-4',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.7,
+      max_tokens: 3000,
     })
 
     const content = response.choices[0]?.message?.content

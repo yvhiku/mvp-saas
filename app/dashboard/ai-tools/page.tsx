@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
+import { AIToolsPage } from '@/components/dashboard/ai-tools-page'
 
 export default function AIToolsPage() {
   const { user, loading } = useAuth()
@@ -29,10 +30,7 @@ export default function AIToolsPage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">AI Tools</h1>
-        <p className="text-gray-600">AI-powered tools for your startup journey.</p>
-      </div>
+      <AIToolsPage />
     </DashboardLayout>
   )
 }
