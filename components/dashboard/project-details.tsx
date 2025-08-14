@@ -75,8 +75,24 @@ export function ProjectDetails({ project, onUpdate }: ProjectDetailsProps) {
     setError(null)
 
     try {
-      const wireframe = await generateWireframe(project.blueprint, project.name)
-      await onUpdate(project.id, { wireframe_url: wireframe.url })
+      const response = await fetch('/api/generate-wireframe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          blueprint: project.blueprint,
+          projectName: project.name,
+        }),
+      })
+
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate wireframe')
+      }
+
+      await onUpdate(project.id, { wireframe_url: data.wireframe.url })
     } catch (error: any) {
       setError(error.message)
     } finally {
@@ -94,61 +110,24 @@ export function ProjectDetails({ project, onUpdate }: ProjectDetailsProps) {
     setError(null)
 
     try {
-      // For now, generate a mock pitch deck since we need the API route
-      const mockPitchDeck = [
-        {
-          title: "Problem Statement",
-          content: `• ${project.target_market} faces significant challenges\n• Current solutions are inadequate\n• Market opportunity is substantial`,
-          notes: "Focus on the pain points your target market experiences daily"
+      const response = await fetch('/api/generate-pitch-deck', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        {
-          title: "Solution",
-          content: `• ${project.name} addresses these challenges\n• Key features: ${project.main_features.slice(0, 3).join(', ')}\n• Unique value proposition`,
-          notes: "Clearly articulate how your solution solves the problem"
-        },
-        {
-          title: "Market Opportunity",
-          content: `• Target market: ${project.target_market}\n• Market size and growth potential\n• Customer segments and personas`,
-          notes: "Demonstrate the size and attractiveness of your market"
-        },
-        {
-          title: "Product Features",
-          content: project.main_features.map(feature => `• ${feature}`).join('\n'),
-          notes: "Highlight your key differentiating features"
-        },
-        {
-          title: "Competition Analysis",
-          content: "• Direct competitors analysis\n• Indirect competitors\n• Competitive advantages",
-          notes: "Show you understand the competitive landscape"
-        },
-        {
-          title: "Business Model",
-          content: "• Revenue streams\n• Pricing strategy\n• Customer acquisition cost",
-          notes: "Explain how you will make money"
-        },
-        {
-          title: "Go-to-Market Strategy",
-          content: "• Customer acquisition channels\n• Marketing strategy\n• Sales approach",
-          notes: "Detail your plan to reach customers"
-        },
-        {
-          title: "Financial Projections",
-          content: "• Revenue projections (3-5 years)\n• Key metrics and KPIs\n• Break-even analysis",
-          notes: "Show realistic financial expectations"
-        },
-        {
-          title: "Team & Roadmap",
-          content: "• Founding team expertise\n• Key milestones\n• Product development timeline",
-          notes: "Demonstrate execution capability"
-        },
-        {
-          title: "Ask & Next Steps",
-          content: "• Funding requirements\n• Use of funds\n• Key milestones to achieve",
-          notes: "Clear call to action for investors"
-        }
-      ]
+        body: JSON.stringify({
+          blueprint: project.blueprint,
+          projectName: project.name,
+        }),
+      })
+
+      const data = await response.json()
       
-      await onUpdate(project.id, { pitch_deck: mockPitchDeck })
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate pitch deck')
+      }
+
+      await onUpdate(project.id, { pitch_deck: data.pitchDeck })
     } catch (error: any) {
       setError(error.message)
     } finally {

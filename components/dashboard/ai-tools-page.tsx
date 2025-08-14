@@ -82,59 +82,24 @@ export function AIToolsPage() {
     setResults(null)
 
     try {
-      // Simulate AI processing
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      const response = await fetch('/api/ai-tools', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          toolId,
+          data: toolId === 'idea-validator' ? ideaForm : {}
+        }),
+      })
 
-      // Mock results based on tool type
-      switch (toolId) {
-        case 'idea-validator':
-          setResults({
-            type: 'validation',
-            score: 8.5,
-            strengths: [
-              'Clear problem identification',
-              'Large target market',
-              'Scalable solution'
-            ],
-            weaknesses: [
-              'High competition',
-              'Technical complexity'
-            ],
-            recommendations: [
-              'Focus on a specific niche first',
-              'Build MVP to validate assumptions',
-              'Research competitor pricing strategies'
-            ]
-          })
-          break
-        case 'market-analyzer':
-          setResults({
-            type: 'market',
-            marketSize: '$2.5B',
-            growth: '15% annually',
-            segments: [
-              { name: 'Small Business', size: '40%', growth: '12%' },
-              { name: 'Enterprise', size: '35%', growth: '18%' },
-              { name: 'Startups', size: '25%', growth: '20%' }
-            ],
-            opportunities: [
-              'Underserved SMB segment',
-              'Growing remote work trend',
-              'Increasing automation demand'
-            ]
-          })
-          break
-        default:
-          setResults({
-            type: 'generic',
-            message: `${toolId} analysis completed successfully!`,
-            insights: [
-              'Key insight 1 based on your input',
-              'Key insight 2 with actionable recommendations',
-              'Key insight 3 for next steps'
-            ]
-          })
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to run analysis')
       }
+
+      setResults(data.results)
     } catch (error: any) {
       setError(error.message || 'Failed to run analysis')
     } finally {

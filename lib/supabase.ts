@@ -24,6 +24,9 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           updated_at: string
+          subscription_status: string | null
+          subscription_plan: string | null
+          stripe_customer_id: string | null
         }
         Insert: {
           id: string
@@ -32,6 +35,9 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           updated_at?: string
+          subscription_status?: string | null
+          subscription_plan?: string | null
+          stripe_customer_id?: string | null
         }
         Update: {
           id?: string
@@ -40,6 +46,9 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           updated_at?: string
+          subscription_status?: string | null
+          subscription_plan?: string | null
+          stripe_customer_id?: string | null
         }
       }
       projects: {

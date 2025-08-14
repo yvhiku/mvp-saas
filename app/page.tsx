@@ -77,6 +77,12 @@ export default function LandingPage() {
                   Connect to Supabase to enable authentication
                 </div>
               ) : null}
+              <Button variant="ghost" onClick={() => router.push('/pricing')}>
+                Pricing
+              </Button>
+              <Button variant="ghost" onClick={() => router.push('/about')}>
+                About
+              </Button>
               <Button onClick={() => router.push('/auth')}>
                 Get Started
               </Button>
@@ -190,7 +196,49 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center mb-4">
+                <Brain className="h-6 w-6 text-blue-400" />
+                <span className="ml-2 text-lg font-semibold">MVP Builder AI</span>
+              </div>
+              <p className="text-gray-400 text-sm">
+                Transform your startup ideas into reality with AI-powered tools and insights.
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold mb-4">Product</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><button onClick={() => router.push('/auth')} className="hover:text-white">Features</button></li>
+                <li><button onClick={() => router.push('/pricing')} className="hover:text-white">Pricing</button></li>
+                <li><button onClick={() => router.push('/auth')} className="hover:text-white">AI Tools</button></li>
+                <li><button onClick={() => router.push('/auth')} className="hover:text-white">MVP Builder</button></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold mb-4">Company</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><button onClick={() => router.push('/about')} className="hover:text-white">About</button></li>
+                <li><button onClick={() => router.push('/contact')} className="hover:text-white">Contact</button></li>
+                <li><a href="#" className="hover:text-white">Blog</a></li>
+                <li><a href="#" className="hover:text-white">Careers</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold mb-4">Support</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><a href="#" className="hover:text-white">Help Center</a></li>
+                <li><button onClick={() => router.push('/contact')} className="hover:text-white">Contact Support</button></li>
+                <li><a href="#" className="hover:text-white">Documentation</a></li>
+                <li><a href="#" className="hover:text-white">Status</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-800 mt-8 pt-8 flex items-center justify-between">
             <div className="flex items-center">
               <Brain className="h-6 w-6 text-blue-400" />
               <span className="ml-2 text-lg font-semibold">MVP Builder AI</span>
