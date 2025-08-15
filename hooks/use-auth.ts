@@ -11,9 +11,15 @@ export function useAuth() {
   useEffect(() => {
     // Get initial session
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setUser(session?.user ?? null)
-      setLoading(false)
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        setUser(session?.user ?? null)
+      } catch (error) {
+        console.error('Error getting session:', error)
+        setUser(null)
+      } finally {
+        setLoading(false)
+      }
     }
 
     getSession()
@@ -21,6 +27,7 @@ export function useAuth() {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email)
         setUser(session?.user ?? null)
         setLoading(false)
       }
@@ -31,14 +38,6 @@ export function useAuth() {
 
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
-      // Check if Supabase is properly configured
-      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
-        return { 
-          data: null, 
-          error: { message: 'Please connect to Supabase first. Click the "Connect to Supabase" button in the top right.' }
-        }
-      }
-
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -56,13 +55,6 @@ export function useAuth() {
 
   const signIn = async (email: string, password: string) => {
     try {
-      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
-        return { 
-          data: null, 
-          error: { message: 'Please connect to Supabase first. Click the "Connect to Supabase" button in the top right.' }
-        }
-      }
-
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -81,6 +73,9 @@ export function useAuth() {
   const signInWithGoogle = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`
+      }
     })
     return { data, error }
   }

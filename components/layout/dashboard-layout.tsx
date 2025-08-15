@@ -1,7 +1,7 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -28,6 +28,7 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, signOut } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
 
   const handleSignOut = async () => {
     await signOut()
@@ -43,6 +44,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
   ]
 
+  const isActive = (href: string) => {
+    if (href === '/dashboard') {
+      return pathname === '/dashboard'
+    }
+    return pathname.startsWith(href)
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Sidebar */}
@@ -57,7 +65,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             {navigation.map((item) => (
               <Button
                 key={item.name}
-                variant="ghost"
+                variant={isActive(item.href) ? "default" : "ghost"}
                 className="w-full justify-start"
                 onClick={() => router.push(item.href)}
               >
@@ -73,7 +81,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="pl-64">
         {/* Top header */}
         <header className="bg-white shadow-sm border-b h-16 flex items-center justify-between px-6">
-          <h1 className="text-lg font-semibold text-gray-900">Dashboard</h1>
+          <div>
+            <h1 className="text-lg font-semibold text-gray-900">
+              {navigation.find(item => isActive(item.href))?.name || 'Dashboard'}
+            </h1>
+          </div>
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -87,6 +99,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
+              <div className="px-2 py-1.5 text-sm font-medium">
+                {user?.user_metadata?.full_name || user?.email}
+              </div>
+              <div className="px-2 py-1.5 text-xs text-gray-500">
+                {user?.email}
+              </div>
+              <div className="border-t my-1" />
               <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
                 <Settings className="mr-2 h-4 w-4" />
                 Settings
