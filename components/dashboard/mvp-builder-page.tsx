@@ -38,6 +38,7 @@ interface MVPStep {
 export function MVPBuilderPage() {
   const [loading, setLoading] = useState<string | null>(null)
   const [activeStep, setActiveStep] = useState(0)
+  const [completedSteps, setCompletedSteps] = useState<string[]>([])
   const [mvpConfig, setMvpConfig] = useState({
     name: '',
     description: '',
@@ -278,8 +279,17 @@ CMD ["npm", "start"]`
   }
 
   const getStepProgress = () => {
-    const completedSteps = mvpSteps.filter(step => step.completed).length
-    return (completedSteps / mvpSteps.length) * 100
+    return (completedSteps.length / mvpSteps.length) * 100
+  }
+
+  const markStepCompleted = (stepId: string) => {
+    if (!completedSteps.includes(stepId)) {
+      setCompletedSteps(prev => [...prev, stepId])
+    }
+  }
+
+  const isStepCompleted = (stepId: string) => {
+    return completedSteps.includes(stepId)
   }
 
   return (
@@ -421,9 +431,9 @@ CMD ["npm", "start"]`
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        step.completed ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'
+                        isStepCompleted(step.id) ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'
                       }`}>
-                        {step.completed ? <CheckCircle className="h-5 w-5" /> : <step.icon className="h-5 w-5" />}
+                        {isStepCompleted(step.id) ? <CheckCircle className="h-5 w-5" /> : <step.icon className="h-5 w-5" />}
                       </div>
                       <div>
                         <CardTitle className="text-lg">{step.title}</CardTitle>
@@ -439,11 +449,16 @@ CMD ["npm", "start"]`
                   <div className="flex gap-3">
                     <Button
                       variant={activeStep === index ? "default" : "outline"}
-                      onClick={() => setActiveStep(index)}
+                      onClick={() => {
+                        setActiveStep(index)
+                        if (!isStepCompleted(step.id)) {
+                          markStepCompleted(step.id)
+                        }
+                      }}
                     >
                       {activeStep === index ? 'Current Step' : 'Start Step'}
                     </Button>
-                    {step.completed && (
+                    {isStepCompleted(step.id) && (
                       <Button variant="ghost" className="text-green-600">
                         <CheckCircle className="mr-2 h-4 w-4" />
                         Completed

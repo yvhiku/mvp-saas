@@ -41,8 +41,10 @@ export function AuthForm() {
 
     try {
       const { error } = await signIn(signInData.email, signInData.password)
-      if (error) throw error
-      router.push('/dashboard')
+      if (error) {
+        throw new Error(error.message)
+      }
+      // Don't redirect here, let the auth state change handle it
     } catch (error: any) {
       setError(error.message)
     } finally {
@@ -68,8 +70,10 @@ export function AuthForm() {
 
     try {
       const { error } = await signUp(signUpData.email, signUpData.password, signUpData.fullName)
-      if (error) throw error
-      router.push('/dashboard')
+      if (error) {
+        throw new Error(error.message)
+      }
+      // Don't redirect here, let the auth state change handle it
     } catch (error: any) {
       setError(error.message)
     } finally {
@@ -78,10 +82,6 @@ export function AuthForm() {
   }
 
   const handleGoogleSignIn = async () => {
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
-      setError('Please connect to Supabase first. Click the "Connect to Supabase" button in the top right.')
-      return
-    }
 
     setLoading(true)
     setError(null)

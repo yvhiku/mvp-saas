@@ -5,11 +5,6 @@ import type { NextRequest } from 'next/server'
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
 
-  // Skip middleware if Supabase is not configured
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
-    return res
-  }
-
   try {
     const supabase = createMiddlewareClient({ req, res })
 
@@ -20,16 +15,20 @@ export async function middleware(req: NextRequest) {
     // Protect dashboard routes
     if (req.nextUrl.pathname.startsWith('/dashboard')) {
       if (!session) {
-        return NextResponse.redirect(new URL('/auth', req.url))
+        const redirectUrl = new URL('/auth', req.url)
+        redirectUrl.searchParams.set('redirectTo', req.nextUrl.pathname)
+        return NextResponse.redirect(redirectUrl)
       }
     }
 
     // Redirect authenticated users away from auth page
     if (req.nextUrl.pathname === '/auth' && session) {
-      return NextResponse.redirect(new URL('/dashboard', req.url))
+      const redirectTo = req.nextUrl.searchParams.get('redirectTo') || '/dashboard'
+      return NextResponse.redirect(new URL(redirectTo, req.url))
     }
   } catch (error) {
     console.error('Middleware error:', error)
+    // Continue to the page if there's an error
   }
 
   return res
