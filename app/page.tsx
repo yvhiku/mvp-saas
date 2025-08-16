@@ -72,11 +72,6 @@ export default function LandingPage() {
               <span className="ml-2 text-xl font-bold text-gray-900">MVP Builder AI</span>
             </div>
             <div className="flex items-center gap-4">
-              {!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder') ? (
-                <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-md text-sm">
-                  Connect to Supabase to enable authentication
-                </div>
-              ) : null}
               <Button variant="ghost" onClick={() => router.push('/pricing')}>
                 Pricing
               </Button>

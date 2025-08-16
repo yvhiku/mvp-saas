@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,9 +12,9 @@ import { Brain, Mail } from 'lucide-react'
 
 export function AuthForm() {
   const { signIn, signUp, signInWithGoogle } = useAuth()
-  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
   const [signInData, setSignInData] = useState({
     email: '',
@@ -38,13 +37,14 @@ export function AuthForm() {
 
     setLoading(true)
     setError(null)
+    setSuccess(null)
 
     try {
       const { error } = await signIn(signInData.email, signInData.password)
       if (error) {
         throw new Error(error.message)
       }
-      // Don't redirect here, let the auth state change handle it
+      setSuccess('Signed in successfully! Redirecting...')
     } catch (error: any) {
       setError(error.message)
     } finally {
@@ -67,13 +67,14 @@ export function AuthForm() {
 
     setLoading(true)
     setError(null)
+    setSuccess(null)
 
     try {
       const { error } = await signUp(signUpData.email, signUpData.password, signUpData.fullName)
       if (error) {
         throw new Error(error.message)
       }
-      // Don't redirect here, let the auth state change handle it
+      setSuccess('Account created successfully! Redirecting...')
     } catch (error: any) {
       setError(error.message)
     } finally {
@@ -82,9 +83,9 @@ export function AuthForm() {
   }
 
   const handleGoogleSignIn = async () => {
-
     setLoading(true)
     setError(null)
+    setSuccess(null)
 
     try {
       const { error } = await signInWithGoogle()
@@ -116,8 +117,14 @@ export function AuthForm() {
           </CardHeader>
           <CardContent>
             {error && (
-              <Alert className="mb-4">
-                <AlertDescription>{error}</AlertDescription>
+              <Alert className="mb-4 border-red-200 bg-red-50">
+                <AlertDescription className="text-red-800">{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {success && (
+              <Alert className="mb-4 border-green-200 bg-green-50">
+                <AlertDescription className="text-green-800">{success}</AlertDescription>
               </Alert>
             )}
 

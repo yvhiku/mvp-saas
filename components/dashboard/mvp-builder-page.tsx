@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Checkbox } from '@/components/ui/checkbox'
 import { 
   Code, 
   Rocket, 
@@ -23,7 +24,8 @@ import {
   Loader2,
   FileText,
   Layers,
-  Zap
+  Zap,
+  X
 } from 'lucide-react'
 
 interface MVPStep {
@@ -103,8 +105,8 @@ export function MVPBuilderPage() {
   ]
 
   const techStacks = [
-    { id: 'react', name: 'React + Next.js', description: 'Modern React framework with SSR' },
-    { id: 'vue', name: 'Vue + Nuxt', description: 'Progressive Vue.js framework' },
+    { id: 'react', name: 'React + Vite', description: 'Modern React with fast build tool' },
+    { id: 'vue', name: 'Vue + Vite', description: 'Progressive Vue.js framework' },
     { id: 'svelte', name: 'SvelteKit', description: 'Lightweight and fast framework' },
     { id: 'vanilla', name: 'Vanilla JS', description: 'Pure JavaScript with Vite' }
   ]
@@ -117,7 +119,7 @@ export function MVPBuilderPage() {
   ]
 
   const deploymentOptions = [
-    { id: 'vercel', name: 'Vercel', description: 'Optimized for Next.js and React' },
+    { id: 'vercel', name: 'Vercel', description: 'Optimized for React and Next.js' },
     { id: 'netlify', name: 'Netlify', description: 'Great for static sites and JAMstack' },
     { id: 'railway', name: 'Railway', description: 'Full-stack deployment platform' },
     { id: 'render', name: 'Render', description: 'Simple cloud platform' }
@@ -144,122 +146,22 @@ export function MVPBuilderPage() {
     setLoading('generating')
     
     try {
-      // Simulate code generation
-      await new Promise(resolve => setTimeout(resolve, 3000))
-      
-      const mockCode = {
-        components: [
-          {
-            name: 'App.jsx',
-            content: `import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Header from './components/Header'
-import Home from './pages/Home'
-import Dashboard from './pages/Dashboard'
-
-function App() {
-  return (
-    <Router>
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
-      </div>
-    </Router>
-  )
-}
-
-export default App`
-          },
-          {
-            name: 'components/Header.jsx',
-            content: `import React from 'react'
-import { Link } from 'react-router-dom'
-
-function Header() {
-  return (
-    <header className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
-          <Link to="/" className="text-xl font-bold text-gray-900">
-            ${mvpConfig.name}
-          </Link>
-          <nav className="flex space-x-4">
-            <Link to="/" className="text-gray-600 hover:text-gray-900">
-              Home
-            </Link>
-            <Link to="/dashboard" className="text-gray-600 hover:text-gray-900">
-              Dashboard
-            </Link>
-          </nav>
-        </div>
-      </div>
-    </header>
-  )
-}
-
-export default Header`
-          }
-        ],
-        database: {
-          schema: `-- ${mvpConfig.name} Database Schema
-CREATE TABLE users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email TEXT UNIQUE NOT NULL,
-  name TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
--- Add tables for your features
-${mvpConfig.features.map(feature => 
-  `CREATE TABLE ${feature.toLowerCase().replace(/\s+/g, '_')} (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id),
-  name TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
-);`
-).join('\n\n')}`,
-          config: `// Database configuration
-export const dbConfig = {
-  url: process.env.DATABASE_URL,
-  apiKey: process.env.DATABASE_API_KEY
-}`
+      const response = await fetch('/api/mvp-generator', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        deployment: {
-          vercel: `{
-  "name": "${mvpConfig.name.toLowerCase().replace(/\s+/g, '-')}",
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/node"
-    }
-  ],
-  "env": {
-    "DATABASE_URL": "@database-url",
-    "DATABASE_API_KEY": "@database-api-key"
-  }
-}`,
-          dockerfile: `FROM node:18-alpine
+        body: JSON.stringify({ mvpConfig }),
+      })
 
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci --only=production
-
-COPY . .
-RUN npm run build
-
-EXPOSE 3000
-
-CMD ["npm", "start"]`
-        }
-      }
+      const data = await response.json()
       
-      setGeneratedCode(mockCode)
-    } catch (error) {
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate code')
+      }
+
+      setGeneratedCode(data.generatedCode)
+    } catch (error: any) {
       console.error('Error generating code:', error)
     } finally {
       setLoading(null)
@@ -276,6 +178,26 @@ CMD ["npm", "start"]`
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
+  }
+
+  const downloadAllCode = () => {
+    if (!generatedCode) return
+
+    // Create a zip-like structure by downloading multiple files
+    const files = [
+      ...generatedCode.components,
+      { name: 'database/schema.sql', content: generatedCode.database.schema },
+      { name: 'database/config.js', content: generatedCode.database.config },
+      { name: 'vercel.json', content: generatedCode.deployment.vercel },
+      { name: 'Dockerfile', content: generatedCode.deployment.dockerfile },
+      { name: 'package.json', content: generatedCode.deployment.packageJson },
+      { name: 'styles/globals.css', content: generatedCode.styles['globals.css'] },
+      { name: 'styles/components.css', content: generatedCode.styles['components.css'] }
+    ]
+
+    files.forEach(file => {
+      setTimeout(() => downloadCode(file.name, file.content), 100)
+    })
   }
 
   const getStepProgress = () => {
@@ -409,12 +331,10 @@ CMD ["npm", "start"]`
                   {mvpConfig.features.map((feature, index) => (
                     <Badge key={index} variant="secondary" className="flex items-center gap-1">
                       {feature}
-                      <button
+                      <X
+                        className="h-3 w-3 cursor-pointer"
                         onClick={() => removeFeature(feature)}
-                        className="ml-1 text-gray-500 hover:text-gray-700"
-                      >
-                        ×
-                      </button>
+                      />
                     </Badge>
                   ))}
                 </div>
@@ -514,12 +434,18 @@ CMD ["npm", "start"]`
                   )}
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <h3 className="text-lg font-semibold">Generated Code Files</h3>
-                    <Button onClick={generateMVPCode} variant="outline">
-                      Regenerate
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button onClick={downloadAllCode} variant="outline">
+                        <Download className="mr-2 h-4 w-4" />
+                        Download All
+                      </Button>
+                      <Button onClick={generateMVPCode} variant="outline">
+                        Regenerate
+                      </Button>
+                    </div>
                   </div>
 
                   <Tabs defaultValue="components" className="space-y-4">
@@ -527,11 +453,12 @@ CMD ["npm", "start"]`
                       <TabsTrigger value="components">Components</TabsTrigger>
                       <TabsTrigger value="database">Database</TabsTrigger>
                       <TabsTrigger value="deployment">Deployment</TabsTrigger>
+                      <TabsTrigger value="styles">Styles</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="components">
                       <div className="space-y-4">
-                        {generatedCode.components.map((file: any, index: number) => (
+                        {generatedCode.components?.map((file: any, index: number) => (
                           <Card key={index}>
                             <CardHeader className="pb-3">
                               <div className="flex justify-between items-center">
@@ -547,7 +474,7 @@ CMD ["npm", "start"]`
                               </div>
                             </CardHeader>
                             <CardContent>
-                              <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto text-sm">
+                              <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto text-sm max-h-96 overflow-y-auto">
                                 <code>{file.content}</code>
                               </pre>
                             </CardContent>
@@ -565,7 +492,7 @@ CMD ["npm", "start"]`
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => downloadCode('schema.sql', generatedCode.database.schema)}
+                                onClick={() => downloadCode('schema.sql', generatedCode.database?.schema || '')}
                               >
                                 <Download className="mr-2 h-4 w-4" />
                                 Download
@@ -573,8 +500,8 @@ CMD ["npm", "start"]`
                             </div>
                           </CardHeader>
                           <CardContent>
-                            <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto text-sm">
-                              <code>{generatedCode.database.schema}</code>
+                            <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto text-sm max-h-96 overflow-y-auto">
+                              <code>{generatedCode.database?.schema}</code>
                             </pre>
                           </CardContent>
                         </Card>
@@ -586,11 +513,11 @@ CMD ["npm", "start"]`
                         <Card>
                           <CardHeader className="pb-3">
                             <div className="flex justify-between items-center">
-                              <CardTitle className="text-base">vercel.json</CardTitle>
+                              <CardTitle className="text-base">package.json</CardTitle>
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => downloadCode('vercel.json', generatedCode.deployment.vercel)}
+                                onClick={() => downloadCode('package.json', generatedCode.deployment?.packageJson || '')}
                               >
                                 <Download className="mr-2 h-4 w-4" />
                                 Download
@@ -598,11 +525,59 @@ CMD ["npm", "start"]`
                             </div>
                           </CardHeader>
                           <CardContent>
-                            <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto text-sm">
-                              <code>{generatedCode.deployment.vercel}</code>
+                            <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto text-sm max-h-96 overflow-y-auto">
+                              <code>{generatedCode.deployment?.packageJson}</code>
                             </pre>
                           </CardContent>
                         </Card>
+                        
+                        <Card>
+                          <CardHeader className="pb-3">
+                            <div className="flex justify-between items-center">
+                              <CardTitle className="text-base">vercel.json</CardTitle>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => downloadCode('vercel.json', generatedCode.deployment?.vercel || '')}
+                              >
+                                <Download className="mr-2 h-4 w-4" />
+                                Download
+                              </Button>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto text-sm max-h-96 overflow-y-auto">
+                              <code>{generatedCode.deployment?.vercel}</code>
+                            </pre>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="styles">
+                      <div className="space-y-4">
+                        {Object.entries(generatedCode.styles || {}).map(([filename, content]) => (
+                          <Card key={filename}>
+                            <CardHeader className="pb-3">
+                              <div className="flex justify-between items-center">
+                                <CardTitle className="text-base">{filename}</CardTitle>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => downloadCode(filename, content as string)}
+                                >
+                                  <Download className="mr-2 h-4 w-4" />
+                                  Download
+                                </Button>
+                              </div>
+                            </CardHeader>
+                            <CardContent>
+                              <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto text-sm max-h-96 overflow-y-auto">
+                                <code>{content}</code>
+                              </pre>
+                            </CardContent>
+                          </Card>
+                        ))}
                       </div>
                     </TabsContent>
                   </Tabs>
@@ -649,7 +624,9 @@ CMD ["npm", "start"]`
                 <AlertDescription>
                   <strong>Deployment Steps for {deploymentOptions.find(o => o.id === mvpConfig.deployment)?.name}:</strong>
                   <ol className="list-decimal list-inside mt-2 space-y-1">
-                    <li>Push your code to GitHub repository</li>
+                    <li>Download your generated code files</li>
+                    <li>Create a new repository on GitHub</li>
+                    <li>Push your code to the repository</li>
                     <li>Connect your repository to {deploymentOptions.find(o => o.id === mvpConfig.deployment)?.name}</li>
                     <li>Configure environment variables</li>
                     <li>Deploy and test your MVP</li>
@@ -658,7 +635,7 @@ CMD ["npm", "start"]`
               </Alert>
 
               <div className="flex gap-3">
-                <Button className="flex-1">
+                <Button className="flex-1" disabled={!generatedCode}>
                   <Play className="mr-2 h-4 w-4" />
                   Start Deployment
                 </Button>

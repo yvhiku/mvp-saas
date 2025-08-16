@@ -17,8 +17,6 @@ export default function DashboardPage() {
     }
   }, [user, loading, router])
 
-  console.log('Dashboard - User:', user?.email, 'Loading:', loading)
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
