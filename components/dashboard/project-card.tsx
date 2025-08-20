@@ -58,7 +58,12 @@ export function ProjectCard({ project, onView, onEdit, onDelete }: ProjectCardPr
   }
 
   const handleViewProject = () => {
-    console.log('Viewing project:', project.id, project.name)
+    console.log('ProjectCard - Viewing project:', {
+      id: project.id,
+      name: project.name,
+      type: typeof project.id,
+      user_id: project.user_id
+    })
     onView(project)
   }
 

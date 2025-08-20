@@ -48,6 +48,8 @@ export function NewProjectForm() {
     e.preventDefault()
     setLoading(true)
     setError(null)
+    
+    console.log('Creating project with data:', formData)
 
     try {
       if (formData.main_features.length === 0) {
@@ -55,8 +57,10 @@ export function NewProjectForm() {
       }
 
       const project = await createProject(formData)
+      console.log('Project created successfully:', project)
       router.push(`/dashboard/project/${project.id}`)
     } catch (error: any) {
+      console.error('Error creating project:', error)
       setError(error.message)
     } finally {
       setLoading(false)

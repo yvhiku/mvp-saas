@@ -32,6 +32,7 @@ export default function ProjectPage() {
   useEffect(() => {
     if (!projectsLoading && projects.length > 0 && projectId) {
       console.log('Looking for project with ID:', projectId)
+      console.log('Available projects:', projects.map(p => ({ id: p.id, name: p.name, user_id: p.user_id })))
       const foundProject = projects.find(p => p.id === projectId)
       console.log('Found project:', foundProject)
       
@@ -39,9 +40,14 @@ export default function ProjectPage() {
         setProject(foundProject)
         setNotFound(false)
       } else {
-        console.log('Project not found, available projects:', projects.map(p => ({ id: p.id, name: p.name })))
+        console.log('Project not found!')
+        console.log('Searching for ID:', projectId, 'Type:', typeof projectId)
+        console.log('Available project IDs:', projects.map(p => ({ id: p.id, type: typeof p.id })))
         setNotFound(true)
       }
+    }
+    else if (!projectsLoading && projects.length === 0 && projectId) {
+      console.log('No projects loaded yet, but projectId exists:', projectId)
     }
   }, [projects, projectId, projectsLoading])
 

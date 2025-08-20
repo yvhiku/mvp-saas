@@ -21,7 +21,13 @@ export function ProjectsGrid() {
   )
 
   const handleView = (project: Project) => {
-    console.log('ProjectsGrid - handleView called with project:', project.id, project.name)
+    console.log('ProjectsGrid - handleView called with project:', {
+      id: project.id,
+      name: project.name,
+      type: typeof project.id,
+      user_id: project.user_id
+    })
+    console.log('Navigating to:', `/dashboard/project/${project.id}`)
     router.push(`/dashboard/project/${project.id}`)
   }
 

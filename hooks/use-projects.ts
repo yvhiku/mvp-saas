@@ -28,6 +28,7 @@ export function useProjects() {
   useEffect(() => {
     if (user) {
       console.log('Fetching projects for user:', user.email)
+      console.log('User ID:', user.id)
       fetchProjects()
     } else {
       console.log('No user, clearing projects')
@@ -44,7 +45,7 @@ export function useProjects() {
       const { data, error } = await supabase
         .from('projects')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user!.id)
         .order('created_at', { ascending: false })
 
       if (error) {
@@ -53,6 +54,7 @@ export function useProjects() {
       }
       
       console.log('Fetched projects:', data?.length || 0, 'Projects:', data?.map(p => ({ id: p.id, name: p.name })))
+      console.log('Full project data:', data)
       setProjects(data || [])
     } catch (error) {
       console.error('Error fetching projects:', error)
@@ -69,7 +71,7 @@ export function useProjects() {
     main_features: string[]
   }) => {
     try {
-      console.log('Creating project:', projectData.name)
+      console.log('Creating project:', projectData.name, 'for user:', user?.id)
       
       const { data, error } = await supabase
         .from('projects')
@@ -86,7 +88,7 @@ export function useProjects() {
         throw error
       }
       
-      console.log('Project created:', data.id)
+      console.log('Project created successfully:', data)
       await fetchProjects()
       return data
     } catch (error) {
