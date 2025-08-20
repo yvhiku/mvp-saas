@@ -38,11 +38,14 @@ export function ProjectDetails({ project, onUpdate }: ProjectDetailsProps) {
   })
   const [error, setError] = useState<string | null>(null)
 
+  console.log('ProjectDetails - Rendering project:', project.id, project.name)
+
   const generateProjectBlueprint = async () => {
     setLoading(prev => ({ ...prev, blueprint: true }))
     setError(null)
 
     try {
+      console.log('Generating blueprint for project:', project.id)
       // Call the API route instead of direct function
       const response = await fetch('/api/generate-blueprint', {
         method: 'POST',
@@ -62,8 +65,10 @@ export function ProjectDetails({ project, onUpdate }: ProjectDetailsProps) {
       if (!response.ok) {
         throw new Error(data.error || 'Failed to generate blueprint')
       }
+      console.log('Blueprint generated successfully')
       await onUpdate(project.id, { blueprint: data.blueprint })
     } catch (error: any) {
+      console.error('Error generating blueprint:', error)
       setError(error.message)
     } finally {
       setLoading(prev => ({ ...prev, blueprint: false }))

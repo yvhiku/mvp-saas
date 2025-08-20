@@ -16,34 +16,80 @@ export default function ProjectPage() {
   const projectId = params.id as string
 
   const [project, setProject] = useState<Project | null>(null)
+  const [notFound, setNotFound] = useState(false)
+
+  console.log('ProjectPage - projectId:', projectId)
+  console.log('ProjectPage - projects:', projects.length)
+  console.log('ProjectPage - authLoading:', authLoading, 'projectsLoading:', projectsLoading)
 
   useEffect(() => {
     if (!authLoading && !user) {
+      console.log('No user, redirecting to auth')
       router.push('/auth')
     }
   }, [user, authLoading, router])
 
   useEffect(() => {
-    if (projects.length > 0) {
+    if (!projectsLoading && projects.length > 0 && projectId) {
+      console.log('Looking for project with ID:', projectId)
       const foundProject = projects.find(p => p.id === projectId)
+      console.log('Found project:', foundProject)
+      
       if (foundProject) {
         setProject(foundProject)
+        setNotFound(false)
       } else {
-        router.push('/dashboard')
+        console.log('Project not found, available projects:', projects.map(p => ({ id: p.id, name: p.name })))
+        setNotFound(true)
       }
     }
-  }, [projects, projectId, router])
+  }, [projects, projectId, projectsLoading])
 
   if (authLoading || projectsLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
+      <DashboardLayout>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading project...</p>
+          </div>
+        </div>
+      </DashboardLayout>
     )
   }
 
-  if (!user || !project) {
+  if (!user) {
     return null
+  }
+
+  if (notFound) {
+    return (
+      <DashboardLayout>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Project Not Found</h2>
+          <p className="text-gray-600 mb-6">The project you're looking for doesn't exist or you don't have access to it.</p>
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </DashboardLayout>
+    )
+  }
+
+  if (!project) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading project details...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    )
   }
 
   return (

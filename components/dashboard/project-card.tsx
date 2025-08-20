@@ -57,6 +57,11 @@ export function ProjectCard({ project, onView, onEdit, onDelete }: ProjectCardPr
     }
   }
 
+  const handleViewProject = () => {
+    console.log('Viewing project:', project.id, project.name)
+    onView(project)
+  }
+
   return (
     <Card className="hover:shadow-lg transition-shadow duration-200">
       <CardHeader className="pb-3">
@@ -124,7 +129,7 @@ export function ProjectCard({ project, onView, onEdit, onDelete }: ProjectCardPr
           </div>
 
           <Button
-            onClick={() => onView(project)}
+            onClick={handleViewProject}
             className="w-full"
             variant="outline"
           >

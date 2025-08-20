@@ -52,7 +52,7 @@ export function useProjects() {
         throw error
       }
       
-      console.log('Fetched projects:', data?.length || 0)
+      console.log('Fetched projects:', data?.length || 0, 'Projects:', data?.map(p => ({ id: p.id, name: p.name })))
       setProjects(data || [])
     } catch (error) {
       console.error('Error fetching projects:', error)
